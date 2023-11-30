@@ -286,6 +286,27 @@ def add_blank_line_at_line(file_name, line_number):
         file.writelines(lines)
     print("Added a new line at line", line_number)
 
+# ADD COMMENT
+def add_comment_at_line(file_name, line_number, comment):
+    line_number = int(line_number)
+
+    comment_code = "# " + comment + "\n"
+
+    with open(file_name, 'r') as file:
+        lines = file.readlines()
+        
+    # Check if line number is valid
+    # Allow adding at the end of the file
+    if 0 < line_number <= len(lines) + 1: 
+        # Insert a blank line at the specified line number
+        lines.insert(line_number - 1, comment_code)
+    else:
+        lines.insert(len(lines), comment_code)
+
+    with open(file_name, 'w') as file:
+        file.writelines(lines)
+    print("Added a new comment at line", line_number)
+
 def ceate_function(file_name, function_name, parameters, line_number, indent):
 
     func_code = "def " + function_name + "(" + parameters + "):\n    pass\n\n"
@@ -303,7 +324,6 @@ def ceate_function(file_name, function_name, parameters, line_number, indent):
     else:
         lines.insert(len(lines), func_code)
         
-
     with open(file_name, 'w') as file:
         file.writelines(lines)
     print("Added a new function at line", line_number)
@@ -431,7 +451,15 @@ def match_add_blank_line(text):
     match = re.search(pattern, text, re.IGNORECASE)
 
     return match.group(1).strip() if match else None
-    
+
+# Add a comment line
+def match_add_comment_line(text):
+    pattern = r"(?:Add a new comment line|Add a comment line|Add a new comment|Add a comment|Add comment) (?:on|at) (?:line|line number) (\d+).(.*)"
+    match = re.search(pattern, text, re.IGNORECASE)
+
+    return match.group(1).strip(), match.group(2).strip() if match else None
+
+# Create a function
 def match_create_function(text):
     pattern = r"(?:Make a|Create a|Write a|Add a) (?:function|method) (?:named|by the name of|by the name|with the name|and name it|name it|with the name of) (\w+)"
     match = re.search(pattern, text, re.IGNORECASE)
@@ -513,6 +541,13 @@ def open_file(file_name):
         if match:
         
             add_blank_line_at_line(file_name, match)
+        
+        # Add a comment line.
+        match1, match2 = match_add_comment_line(file_input_text)
+        if match1 and match2:
+            
+            line_number, comment = match_add_comment_line(file_input_text)
+            add_comment_at_line(file_name, line_number, comment)
         
         # Create a function
         match = match_create_function(file_input_text)
